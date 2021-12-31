@@ -1,12 +1,8 @@
-#!/usr/bin/python3
-# -*- encoding: utf-8 -*-
-#
 import re
 import time
 import json
 import requests
 import websocket
-import _thread
 from optparse import OptionParser
 
 wss_url = re.findall(r"var socket_url = '(.*?)';",
@@ -86,21 +82,6 @@ def on_message(ws, message):
     time.sleep(0.1)
 
 
-def on_error(ws, error):
-    print(error)
-
-
-def on_close(ws, close_status_code, close_msg):
-    print("### closed ###")
-
-
-def on_open(ws):
-    def run(*args):
-        time.sleep(1)
-
-    _thread.start_new_thread(run, ())
-
-
 if __name__ == "__main__":
     usage = "USAGE: %prog [options]\n\nDownload invoices from the website https://casasbahia.digital"
 
@@ -112,13 +93,7 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     cpf, last_digits = options.cpf, options.last_digits
-
-    # websocket.enableTrace(True)
     ws = websocket.WebSocketApp(f"{wss_url}&identifier={identifier}",
-                                on_open=on_open,
-                                on_message=on_message,
-                                on_error=on_error,
-                                on_close=on_close
+                                on_message=on_message
                                 )
-
     ws.run_forever()
